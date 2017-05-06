@@ -81,6 +81,20 @@ public class main {
                     }
 
                 }
+
+                if(current_state==State.RegularGame)
+                {
+                    if(canplacepiece(board, number, number2)&&number<dimensions&&number>=0&&number2<dimensions&&number2>=0) {
+                        board[number][number2] = Tile.White;
+                        current_turn = Turn.AI;
+                        numberofpiecesplayed++;
+                    }
+                    else
+                    {
+                        System.out.println("INVALID SELECTION");
+                    }
+                }
+
             } else {
                 System.out.println("AI what will you place? ");
                 Scanner myscan = new Scanner(System.in);
@@ -105,6 +119,19 @@ public class main {
 
                     }
 
+                }
+                if(current_state==State.RegularGame)
+                {
+                    if(canplacepiece(board, number, number2)&&number<dimensions&&number>=0&&number2<dimensions&&number2>=0) {
+                        board[number][number2] = Tile.Black;
+                        current_turn = Turn.Player;
+                        numberofpiecesplayed++;
+                    }
+                    else
+                    {
+                        System.out.println("INVALID SELECTION");
+
+                    }
                 }
                 if(numberofpiecesplayed>=4)
                 {
