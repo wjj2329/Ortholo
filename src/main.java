@@ -110,10 +110,9 @@ public class main {
                 {
                     current_state=State.RegularGame;
                 }
-                printboard(board, dimensions);
 
             }
-            //center do we place or pre placed?  Also what about if dimensions are odd?
+            printboard(board, dimensions);
 
         }
     }
