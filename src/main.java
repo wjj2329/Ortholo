@@ -1,3 +1,5 @@
+import sun.plugin.dom.core.CoreConstants;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -48,7 +50,27 @@ public class main {
         }
     }
 
+   public static ArrayList<Coordinate>mylocations=new ArrayList<>();
 
+   private static void whereicanplay(Tile board[][], Tile currentplayer, int dimension, State mystate)
+   {
+      mylocations.clear();
+      for (int i=0; i<dimension; i++)
+      {
+          for(int j=0; j<dimension; j++)
+          {
+
+             if( canplacepiece(board, i, j, currentplayer, dimension, mystate, false))
+             {
+                 mylocations.add(new Coordinate(i, j));
+             }
+          }
+      }
+      for (Coordinate c: mylocations)
+      {
+          System.out.println(c.toString());
+      }
+   }
     private static Turn whogoes(int whogoesfirst) {
         switch (whogoesfirst) {
             case (1): {
@@ -97,7 +119,7 @@ public class main {
         }
     }
 
-    private static boolean canplacepiece(Tile board[][], int x, int y, Tile currentplayer, int dimension, State mystate)//x is y and y is x because idk
+    private static boolean canplacepiece(Tile board[][], int x, int y, Tile currentplayer, int dimension, State mystate, boolean updateboard)//x is y and y is x because idk
     {
         Tile oppositeplayer=oppositecolor(currentplayer);
         if(x>=dimension||x<0||y<0||y>=dimension)
@@ -110,20 +132,21 @@ public class main {
         }
         if(mystate==State.Startup)
         {
-            return true;
+            if (x <= dimension / 2 && y <= dimension / 2 && x >= ((dimension / 2) - 1) && y >= ((dimension / 2) - 1)) {
+                return true;
+            }
+            else
+            {
+                return  false;
+            }
         }
-
-
-
         boolean isitgood=false;
-
-
         int x2, y2;//for x2--
         x2=x;
         y2=y;
         ArrayList<Coordinate>minetocheck=new ArrayList<>();
         boolean islegal=true;
-        if(x2==0) {
+        if(x2<=0) {
             islegal=false;
         }
         else {
@@ -132,21 +155,23 @@ public class main {
             while (board[(x2)][y2] == oppositeplayer) {
                 minetocheck.add(new Coordinate(x2, y2));
                 x2--;
-                if (x2 == 0) {
+                if (x2 < 0) {
                     islegal = false;
                     break;
                 }
 
             }
         }//do more of the outbounds check. 
-        if(board[x2][y2]==currentplayer&&islegal)
+        if(islegal&&board[x2][y2]==currentplayer)
         {
-                for( Coordinate c: minetocheck)
-                {
-                    board[c.x][c.y]=currentplayer;
-                    isitgood=true;
-
+            if(minetocheck.size()>0) {
+                isitgood = true;
+            }
+            if(updateboard) {
+                for (Coordinate c : minetocheck) {
+                    board[c.x][c.y] = currentplayer;
                 }
+            }
         }
 
 
@@ -154,7 +179,7 @@ public class main {
         y2=y;
         minetocheck=new ArrayList<>();// for y2--
         islegal=true;
-        if(y2==0) {
+        if(y2<=0) {
         islegal=false;
         }
         else {
@@ -164,7 +189,7 @@ public class main {
             while (board[x2][(y2)] == oppositeplayer) {
                 minetocheck.add(new Coordinate(x2, y2));
                 y2--;
-                if (y2 == 0) {
+                if (y2 < 0) {
                     islegal = false;
                     break;
                 }
@@ -173,13 +198,15 @@ public class main {
         }
 
 
-        if(board[x2][y2]==currentplayer&&islegal)
+        if(islegal&&board[x2][y2]==currentplayer)
         {
-            for( Coordinate c: minetocheck)
-            {
-                board[c.x][c.y]=currentplayer;
-                isitgood=true;
-
+            if(minetocheck.size()>0) {
+                isitgood = true;
+            }
+            if(updateboard) {
+                for (Coordinate c : minetocheck) {
+                    board[c.x][c.y] = currentplayer;
+                }
             }
         }
 
@@ -187,7 +214,7 @@ public class main {
         y2=y;
         minetocheck=new ArrayList<>(); //x2-- and y2 --
         islegal=true;
-        if(x2==0||y2==0)
+        if(x2<=0||y2<=0)
         {
             islegal=false;
         }
@@ -196,20 +223,21 @@ public class main {
             while (board[x2][y2] == oppositeplayer) {
                 minetocheck.add(new Coordinate(x2, y2));
                 x2--; y2--;
-                if (y2 == 0 || x2 == 0) {
+                if (y2 < 0 || x2 < 0) {
                     islegal = false;
                     break;
                 }
             }
         }
-        if(board[x2][y2]==currentplayer&&islegal)
+        if(islegal&&board[x2][y2]==currentplayer)
         {
-            for( Coordinate c: minetocheck)
-            {
-                board[c.x][c.y]=currentplayer;
-                isitgood=true;
-
-
+            if(minetocheck.size()>0) {
+                isitgood = true;
+            }
+            if(updateboard) {
+                for (Coordinate c : minetocheck) {
+                    board[c.x][c.y] = currentplayer;
+                }
             }
         }
 
@@ -217,7 +245,7 @@ public class main {
         y2=y;
         minetocheck=new ArrayList<>(); //x2++ and y2 ++
         islegal=true;
-        if(x2==(dimension-1)||(y2==dimension-1))
+        if(x2>=(dimension-1)||(y2>=dimension-1))
         {
             islegal=false;
         }
@@ -226,19 +254,21 @@ public class main {
             while (board[(x2)][(y2)] == oppositeplayer) {
                 minetocheck.add(new Coordinate(x2, y2));
                 x2++;y2++;
-                if (y2 == (dimension - 1 )|| (x2 == dimension - 1)) {
+                if (y2 > (dimension - 1 )|| (x2 > (dimension - 1))) {
                     islegal = false;
                     break;
                 }
             }
         }
-        if(board[x2][y2]==currentplayer&&islegal)
+        if(islegal&&board[x2][y2]==currentplayer)
         {
-            for( Coordinate c: minetocheck)
-            {
-                board[c.x][c.y]=currentplayer;
-                isitgood=true;
-
+            if(minetocheck.size()>0) {
+                isitgood = true;
+            }
+            if(updateboard) {
+                for (Coordinate c : minetocheck) {
+                    board[c.x][c.y] = currentplayer;
+                }
             }
         }
 
@@ -246,7 +276,7 @@ public class main {
         y2=y;
         minetocheck=new ArrayList<>(); // for x2++
         islegal=true;
-        if(x2==dimension-1)
+        if(x2>=dimension-1)
         {
             islegal=false;
         }
@@ -255,19 +285,21 @@ public class main {
             while (board[(x2)][y2] == oppositeplayer) {
                 minetocheck.add(new Coordinate(x2, y2));
                 x2++;
-                if (x2 == (dimension - 1)) {
+                if (x2 > (dimension - 1)) {
                     islegal = false;
                     break;
                 }
             }
         }
-        if(board[x2][y2]==currentplayer&&islegal)
+        if(islegal&&board[x2][y2]==currentplayer)
         {
-            for( Coordinate c: minetocheck)
-            {
-                board[c.x][c.y]=currentplayer;
-                isitgood=true;
-
+            if(minetocheck.size()>0) {
+                isitgood = true;
+            }
+            if(updateboard) {
+                for (Coordinate c : minetocheck) {
+                    board[c.x][c.y] = currentplayer;
+                }
             }
         }
 
@@ -275,7 +307,7 @@ public class main {
         y2=y;
         minetocheck=new ArrayList<>(); // for y2++
         islegal=true;
-        if(y2==(dimension-1))
+        if(y2>=(dimension-1))
         {
             islegal=false;
         }
@@ -284,19 +316,21 @@ public class main {
             while (board[x2][(y2)] == oppositeplayer) {
                 minetocheck.add(new Coordinate(x2, y2));
                 y2++;
-                if (y2 == (dimension - 1)) {
+                if (y2 > (dimension - 1)) {
                     islegal = false;
                     break;
                 }
             }
         }
-        if(board[x2][y2]==currentplayer&&islegal)
+        if(islegal&&board[x2][y2]==currentplayer)
         {
-            for( Coordinate c: minetocheck)
-            {
-                board[c.x][c.y]=currentplayer;
-                isitgood=true;
-
+            if(minetocheck.size()>0) {
+                isitgood = true;
+            }
+            if(updateboard) {
+                for (Coordinate c : minetocheck) {
+                    board[c.x][c.y] = currentplayer;
+                }
             }
         }
 
@@ -305,7 +339,7 @@ public class main {
         y2=y;
         minetocheck=new ArrayList<>(); //x2++ and y2 --
         islegal=true;
-        if(x2==dimension-1||y2==0)
+        if(x2>=dimension-1||y2<=0)
         {
             islegal=false;
         }
@@ -314,19 +348,21 @@ public class main {
             while (board[(x2)][(y2)] == oppositeplayer) {
                 minetocheck.add(new Coordinate(x2, y2));
                 x2++; y2--;
-                if (y2 == 0 || x2 == (dimension - 1)) {
+                if (y2 < 0 || x2 > (dimension - 1)) {
                     islegal = false;
                     break;
                 }
             }
         }
-        if(board[x2][y2]==currentplayer&&islegal)
+        if(islegal&&board[x2][y2]==currentplayer)
         {
-            for( Coordinate c: minetocheck)
-            {
-                board[c.x][c.y]=currentplayer;
-                isitgood=true;
-
+            if(minetocheck.size()>0) {
+                isitgood = true;
+            }
+            if(updateboard) {
+                for (Coordinate c : minetocheck) {
+                    board[c.x][c.y] = currentplayer;
+                }
             }
         }
 
@@ -335,27 +371,30 @@ public class main {
         y2=y;
         minetocheck=new ArrayList<>(); //x2-- and y2 ++
         islegal=true;
-        if(x2==0||y2==(dimension-1))
+        if(x2<=0||y2>=(dimension-1))
         {
             islegal=false;
         }
         else {
             x2--; y2++;
-            while (board[(x2)][(y2)] == oppositeplayer) {
+            while (board[(x2)][(y2)] == oppositeplayer) { //check rightmost and right up
                 minetocheck.add(new Coordinate(x2, y2));
                 x2--; y2++;
-                if (x2 == 0 || y2 ==( dimension - 1)) {
+                if (x2 < 0 || y2 >( dimension - 1)) {
                     islegal = false;
                     break;
                 }
             }
         }
-        if(board[x2][y2]==currentplayer&&islegal)
+        if(islegal&&board[x2][y2]==currentplayer)
         {
-            for( Coordinate c: minetocheck)
-            {
-                board[c.x][c.y]=currentplayer;
-                isitgood=true;
+            if(minetocheck.size()>0) {
+                isitgood = true;
+            }
+            if(updateboard) {
+                for (Coordinate c : minetocheck) {
+                    board[c.x][c.y] = currentplayer;
+                }
             }
         }
 
@@ -379,12 +418,13 @@ public class main {
         while (numberofpiecesplayed < numberIneed) {
             if (current_turn == Turn.Player) {
                 System.out.println("Player 1 what will you place? "+" White");
+                whereicanplay(board, Tile.White, dimensions, current_state);
                 Scanner myscan = new Scanner(System.in);
                 int number = myscan.nextInt();
                 int number2 = myscan.nextInt();
                 if (current_state == State.Startup) {
                     if (number <= dimensions / 2 && number2 <= dimensions / 2 && number >= ((dimensions / 2) - 1) && number >= ((dimensions / 2) - 1)) {
-                       if(canplacepiece(board, number, number2, Tile.White, dimensions, current_state)) {
+                       if(canplacepiece(board, number, number2, Tile.White, dimensions, current_state, true)) {
                            board[number][number2] = Tile.White;
                            current_turn = Turn.AI;
                            numberofpiecesplayed++;
@@ -401,7 +441,7 @@ public class main {
 
                 if(current_state==State.RegularGame)
                 {
-                    if(canplacepiece(board, number, number2, Tile.White, dimensions, current_state)&&number<dimensions&&number>=0&&number2<dimensions&&number2>=0) {
+                    if(canplacepiece(board, number, number2, Tile.White, dimensions, current_state, true)&&number<dimensions&&number>=0&&number2<dimensions&&number2>=0) {
                         board[number][number2] = Tile.White;
                         current_turn = Turn.AI;
                         numberofpiecesplayed++;
@@ -414,12 +454,13 @@ public class main {
 
             } else {
                 System.out.println("AI what will you place? "+"black");
+                whereicanplay(board, Tile.Black, dimensions, current_state);
                 Scanner myscan = new Scanner(System.in);
                 int number = myscan.nextInt();
                 int number2 = myscan.nextInt();
                 if (current_state == State.Startup) {
                     if (number <= dimensions / 2 && number2 <= dimensions / 2 && number >= ((dimensions / 2) - 1) && number >= ((dimensions / 2) - 1)) {
-                        if(canplacepiece(board, number, number2, Tile.Black, dimensions, current_state)) {
+                        if(canplacepiece(board, number, number2, Tile.Black, dimensions, current_state, true)) {
                             board[number][number2] = Tile.Black;
                             current_turn = Turn.Player;
                             numberofpiecesplayed++;
@@ -439,7 +480,7 @@ public class main {
                 }
                 if(current_state==State.RegularGame)
                 {
-                    if(canplacepiece(board, number, number2, Tile.Black, dimensions, current_state)&&number<dimensions&&number>=0&&number2<dimensions&&number2>=0) {
+                    if(canplacepiece(board, number, number2, Tile.Black, dimensions, current_state, true)&&number<dimensions&&number>=0&&number2<dimensions&&number2>=0) {
                         board[number][number2] = Tile.Black;
                         current_turn = Turn.Player;
                         numberofpiecesplayed++;
