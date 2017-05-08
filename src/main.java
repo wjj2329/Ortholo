@@ -2,6 +2,7 @@ import sun.plugin.dom.core.CoreConstants;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -14,6 +15,16 @@ public class main {
 
     public enum Turn {
         Player, AI
+    }
+
+
+    public static Coordinate ai_taketurn()
+    {
+        Random myrandom=new Random();
+        int x=myrandom.nextInt(mylocations.size());
+        System.out.println("THE AI CHOOSES!");
+        System.out.println(mylocations.get(x).toString());
+        return mylocations.get(x);
     }
 
     private static void winner(Tile board[][], int dimension)
@@ -414,11 +425,21 @@ public class main {
         Turn current_turn = whogoes(Integer.parseInt(args[1]));
         State current_state = State.Startup;
         int numberofpiecesplayed = 0;
+        boolean endgame1=false;
+        boolean endgame2=false;
         int numberIneed = dimensions * dimensions;
         while (numberofpiecesplayed < numberIneed) {
+
             if (current_turn == Turn.Player) {
                 System.out.println("Player 1 what will you place? "+" White");
                 whereicanplay(board, Tile.White, dimensions, current_state);
+                if(mylocations.size()==0)
+                {
+                    System.out.println("YOU CAN'T play any pieces ");
+                    current_turn=Turn.AI;
+                    endgame1=true;
+                    continue;
+                }
                 Scanner myscan = new Scanner(System.in);
                 int number = myscan.nextInt();
                 int number2 = myscan.nextInt();
@@ -428,10 +449,12 @@ public class main {
                            board[number][number2] = Tile.White;
                            current_turn = Turn.AI;
                            numberofpiecesplayed++;
+                           endgame1=false;
+                           endgame2=false;
                        }
                        else
                        {
-                           System.out.println("INVALID SELECTION");
+                    System.out.println("INVALID SELECTION");
                        }
                     } else {
                         System.out.println("INVALID SELECTION");
@@ -455,15 +478,24 @@ public class main {
             } else {
                 System.out.println("AI what will you place? "+"black");
                 whereicanplay(board, Tile.Black, dimensions, current_state);
-                Scanner myscan = new Scanner(System.in);
-                int number = myscan.nextInt();
-                int number2 = myscan.nextInt();
+                if(mylocations.size()==0)
+                {
+                    System.out.println("AI CAN'T play any pieces ");
+                    current_turn=Turn.Player;
+                    endgame2=true;
+                    continue;
+                }
+                Coordinate c=ai_taketurn();
+                int number = c.x;
+                int number2 = c.y;
                 if (current_state == State.Startup) {
                     if (number <= dimensions / 2 && number2 <= dimensions / 2 && number >= ((dimensions / 2) - 1) && number >= ((dimensions / 2) - 1)) {
                         if(canplacepiece(board, number, number2, Tile.Black, dimensions, current_state, true)) {
                             board[number][number2] = Tile.Black;
                             current_turn = Turn.Player;
                             numberofpiecesplayed++;
+                            endgame1=false;
+                            endgame2=false;
                         }
                         else
                         {
@@ -496,6 +528,11 @@ public class main {
             if(numberofpiecesplayed>=4)
             {
                 current_state=State.RegularGame;
+            }
+            if(endgame1&&endgame2)
+            {
+                System.out.println("THIS IS A STALE MATE");
+                break;
             }
 
             printboard(board, dimensions);
