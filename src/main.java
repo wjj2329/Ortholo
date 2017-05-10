@@ -8,12 +8,16 @@ import java.util.Scanner;
 /**
  * Created by williamjones on 5/4/17.
  */
-public class main {
-    public enum Tile {
+public class main
+{
+    private static AI computerPlayer;
+    public enum Tile
+    {
         Empty, Black, White
     }
 
-    public enum Turn {
+    public enum Turn
+    {
         Player, AI
     }
 
@@ -51,7 +55,7 @@ public class main {
             System.out.println("BLACK WINS!");
 
         }
-        if (white>black)
+        else if (white>black) // added the else
         {
             System.out.println("WHITE WINS!");
         }
@@ -148,7 +152,7 @@ public class main {
             }
             else
             {
-                return  false;
+                return false;
             }
         }
         boolean isitgood=false;
@@ -413,7 +417,9 @@ public class main {
 
         return isitgood;
     }
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException
+    {
+        computerPlayer = new AI();
 
         int dimensions = Integer.parseInt(args[0]);
         Tile board[][] = new Tile[dimensions][dimensions];
