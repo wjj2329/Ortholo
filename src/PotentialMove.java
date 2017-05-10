@@ -131,8 +131,10 @@ public class PotentialMove
         ArrayList<Coordinate> coordinates=main.whereicanplay(potentialBoard, colorOfPlayerWhoMadeMove, main.dimensions, main.State.RegularGame);
         for (Coordinate c : coordinates)
         {
-            children.add(new PotentialMove(c, getOtherPlayer(), main.oppositecolor(colorOfPlayerWhoMadeMove),
-                    updateChildBoard(c), playingState, depthLevel + 1));
+            PotentialMove l=new PotentialMove(c, getOtherPlayer(), main.oppositecolor(colorOfPlayerWhoMadeMove),
+                    updateChildBoard(c), playingState, depthLevel + 1);
+            System.out.println(l.toString());
+            children.add(l);
         }
     }
 
@@ -163,8 +165,13 @@ public class PotentialMove
 
     private main.Tile[][] updateChildBoard(Coordinate c)
     {
+        //System.out.println("Before");
+        main.printboard(potentialBoard, main.dimensions);
         main.Tile[][] newBoard = updateboard();
-        main.printboard(newBoard, main.dimensions);
+        newBoard[c.x][c.y]=this.getColorOfPlayerWhoMadeMove();
+        //System.out.println("After");
+        //System.out.println("With coordinates "+this.location.toString());
+        //main.printboard(newBoard, main.dimensions);
         // double check: should we use current player or OPPOSITE player?
      main.canplacepiece(newBoard, c.x, c.y, colorOfPlayerWhoMadeMove,
                 main.dimensions, playingState, true);
@@ -202,8 +209,9 @@ public class PotentialMove
         sol.append("Color: " + colorOfPlayerWhoMadeMove + "\n");
         sol.append("Player Making Move: " + whoMadeMove + "\n");
         sol.append("Number of Potential Pieces This Move Could Gain or Lose: " + numPiecesPotentiallyGainedOrLost + "\n");
-        sol.append("Coordinates are: "+location.toString());
-        sol.append("The depth limit I am at is "+depthLevel);
+        sol.append("Coordinates are: "+location.toString()+"\n");
+        sol.append("The depth limit I am at is "+depthLevel+'\n');
+        main.printboard(potentialBoard, main.dimensions);
         return sol.toString();
     }
 }

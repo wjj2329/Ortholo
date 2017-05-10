@@ -51,7 +51,7 @@ public class main
 
         computerPlayer.setRoot(root);
         computerPlayer.createTree(depthLimit);
-        computerPlayer.printTree(depthLimit);
+        //computerPlayer.printTree(depthLimit);
 
         System.exit(0);
         return computerPlayer.calculateOptimalMove(depthLimit).getLocation(); //returns best move found after all the calucations
