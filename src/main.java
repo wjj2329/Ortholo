@@ -1,5 +1,3 @@
-import sun.plugin.dom.core.CoreConstants;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -11,6 +9,22 @@ import java.util.Scanner;
 public class main
 {
     private static AI computerPlayer;
+    /**
+     * The specified depth limit
+     */
+    private static int depthLimit;
+    /**
+     * Root move in the tree
+     */
+    public static PotentialMove root;
+
+    /**
+     * Dimensions of board -- passed in as command line argument
+     */
+    public static int dimensions;
+
+
+
     public enum Tile
     {
         Empty, Black, White
@@ -122,7 +136,7 @@ public class main
         }
     }
 
-    private static Tile oppositecolor(Tile currentplayer)
+    public static Tile oppositecolor(Tile currentplayer)
     {
         if(currentplayer==Tile.Black)
         {
@@ -134,7 +148,7 @@ public class main
         }
     }
 
-    private static boolean canplacepiece(Tile board[][], int x, int y, Tile currentplayer, int dimension, State mystate, boolean updateboard)//x is y and y is x because idk
+    public static boolean canplacepiece(Tile board[][], int x, int y, Tile currentplayer, int dimension, State mystate, boolean updateboard)//x is y and y is x because idk
     {
         Tile oppositeplayer=oppositecolor(currentplayer);
         if(x>=dimension||x<0||y<0||y>=dimension)
@@ -420,8 +434,9 @@ public class main
     public static void main(String[] args) throws IOException
     {
         computerPlayer = new AI();
+        //root = new PotentialMove(); <- Where to create this?
 
-        int dimensions = Integer.parseInt(args[0]);
+        dimensions = Integer.parseInt(args[0]);
         Tile board[][] = new Tile[dimensions][dimensions];
         for (int i = 0; i < dimensions; i++) {
             for (int j = 0; j < dimensions; j++) {
