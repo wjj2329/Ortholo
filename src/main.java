@@ -13,6 +13,7 @@ public class main
      * The specified depth limit
      */
     private static int depthLimit;
+
     /**
      * Root move in the tree
      */
@@ -25,6 +26,8 @@ public class main
 
 
 
+    public static int numberofpeicesplayed=0;
+
     public enum Tile
     {
         Empty, Black, White
@@ -36,13 +39,22 @@ public class main
     }
 
 
-    public static Coordinate ai_taketurn()
+    public static Coordinate ai_taketurn(State state)
     {
-        Random myrandom=new Random();
-        int x=myrandom.nextInt(mylocations.size());
-        System.out.println("THE AI CHOOSES!");
-        System.out.println(mylocations.get(x).toString());
-        return mylocations.get(x);
+
+        if(State.Startup==state)
+        {
+            Random myrandom=new Random();
+            int x=myrandom.nextInt(mylocations.size());
+            return mylocations.get(x);
+        }
+
+        computerPlayer.setRoot(root);
+        computerPlayer.createTree(depthLimit);
+        computerPlayer.printTree(depthLimit);
+
+        System.exit(0);
+        return computerPlayer.calculateOptimalMove(depthLimit).getLocation(); //returns best move found after all the calucations
     }
 
     private static void winner(Tile board[][], int dimension)
@@ -81,7 +93,7 @@ public class main
 
    public static ArrayList<Coordinate>mylocations=new ArrayList<>();
 
-   private static void whereicanplay(Tile board[][], Tile currentplayer, int dimension, State mystate)
+   public  static ArrayList<Coordinate> whereicanplay(Tile board[][], Tile currentplayer, int dimension, State mystate)
    {
       mylocations.clear();
       for (int i=0; i<dimension; i++)
@@ -99,6 +111,7 @@ public class main
       {
           System.out.println(c.toString());
       }
+      return mylocations;
    }
     private static Turn whogoes(int whogoesfirst) {
         switch (whogoesfirst) {
@@ -173,6 +186,7 @@ public class main
         int x2, y2;//for x2--
         x2=x;
         y2=y;
+        numberofpeicesplayed=0;
         ArrayList<Coordinate>minetocheck=new ArrayList<>();
         boolean islegal=true;
         if(x2<=0) {
@@ -199,6 +213,7 @@ public class main
             if(updateboard) {
                 for (Coordinate c : minetocheck) {
                     board[c.x][c.y] = currentplayer;
+                    numberofpeicesplayed++;
                 }
             }
         }
@@ -235,6 +250,8 @@ public class main
             if(updateboard) {
                 for (Coordinate c : minetocheck) {
                     board[c.x][c.y] = currentplayer;
+                    numberofpeicesplayed++;
+
                 }
             }
         }
@@ -266,6 +283,8 @@ public class main
             if(updateboard) {
                 for (Coordinate c : minetocheck) {
                     board[c.x][c.y] = currentplayer;
+                    numberofpeicesplayed++;
+
                 }
             }
         }
@@ -297,6 +316,8 @@ public class main
             if(updateboard) {
                 for (Coordinate c : minetocheck) {
                     board[c.x][c.y] = currentplayer;
+                    numberofpeicesplayed++;
+
                 }
             }
         }
@@ -328,6 +349,8 @@ public class main
             if(updateboard) {
                 for (Coordinate c : minetocheck) {
                     board[c.x][c.y] = currentplayer;
+                    numberofpeicesplayed++;
+
                 }
             }
         }
@@ -359,6 +382,8 @@ public class main
             if(updateboard) {
                 for (Coordinate c : minetocheck) {
                     board[c.x][c.y] = currentplayer;
+                    numberofpeicesplayed++;
+
                 }
             }
         }
@@ -391,6 +416,8 @@ public class main
             if(updateboard) {
                 for (Coordinate c : minetocheck) {
                     board[c.x][c.y] = currentplayer;
+                    numberofpeicesplayed++;
+
                 }
             }
         }
@@ -423,6 +450,8 @@ public class main
             if(updateboard) {
                 for (Coordinate c : minetocheck) {
                     board[c.x][c.y] = currentplayer;
+                    numberofpeicesplayed++;
+
                 }
             }
         }
@@ -434,8 +463,7 @@ public class main
     public static void main(String[] args) throws IOException
     {
         computerPlayer = new AI();
-        //root = new PotentialMove(); <- Where to create this?
-
+        depthLimit=Integer.parseInt(args[2]);
         dimensions = Integer.parseInt(args[0]);
         Tile board[][] = new Tile[dimensions][dimensions];
         for (int i = 0; i < dimensions; i++) {
@@ -449,9 +477,22 @@ public class main
         boolean endgame1=false;
         boolean endgame2=false;
         int numberIneed = dimensions * dimensions;
+        Tile temp;
+        if(current_turn==Turn.AI)
+        {
+            temp=Tile.Black;
+
+        }
+        else
+        {
+            temp=Tile.White;
+        }
+
+
         while (numberofpiecesplayed < numberIneed) {
 
             if (current_turn == Turn.Player) {
+
                 System.out.println("Player 1 what will you place? "+" White");
                 whereicanplay(board, Tile.White, dimensions, current_state);
                 if(mylocations.size()==0)
@@ -506,7 +547,8 @@ public class main
                     endgame2=true;
                     continue;
                 }
-                Coordinate c=ai_taketurn();
+                root = new PotentialMove(new Coordinate(-1, -1),current_turn,temp,board,State.RegularGame, 1);
+                Coordinate c=ai_taketurn(current_state);
                 int number = c.x;
                 int number2 = c.y;
                 if (current_state == State.Startup) {

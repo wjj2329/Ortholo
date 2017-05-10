@@ -12,6 +12,64 @@ public class PotentialMove
      */
     private ArrayList<PotentialMove> children = null;
 
+
+
+    public ArrayList<PotentialMove> getChildren() {
+        return children;
+    }
+
+    public void setChildren(ArrayList<PotentialMove> children) {
+        this.children = children;
+    }
+
+    public Coordinate getLocation() {
+        return location;
+    }
+
+    public void setLocation(Coordinate location) {
+        this.location = location;
+    }
+
+    public main.Turn getWhoMadeMove() {
+        return whoMadeMove;
+    }
+
+    public void setWhoMadeMove(main.Turn whoMadeMove) {
+        this.whoMadeMove = whoMadeMove;
+    }
+
+    public main.Tile getColorOfPlayerWhoMadeMove() {
+        return colorOfPlayerWhoMadeMove;
+    }
+
+    public void setColorOfPlayerWhoMadeMove(main.Tile colorOfPlayerWhoMadeMove) {
+        this.colorOfPlayerWhoMadeMove = colorOfPlayerWhoMadeMove;
+    }
+
+    public main.Tile[][] getPotentialBoard() {
+        return potentialBoard;
+    }
+
+    public void setPotentialBoard(main.Tile[][] potentialBoard) {
+        this.potentialBoard = potentialBoard;
+    }
+
+    public main.State getPlayingState() {
+        return playingState;
+    }
+
+    public void setPlayingState(main.State playingState) {
+        this.playingState = playingState;
+    }
+
+    public int getDepthLevel() {
+        return depthLevel;
+    }
+
+    public void setDepthLevel(int depthLevel) {
+        this.depthLevel = depthLevel;
+    }
+
     /**
      * Where this move is going to occur.
      * For root, this will be null.
@@ -44,6 +102,8 @@ public class PotentialMove
      */
     private int depthLevel = 0;
 
+    private int numPiecesPotentiallyGainedOrLost = 0;
+
     /**
      * Constructor for PotentialMove.
      * When we create the ROOT MOVE, set depth level to 1.
@@ -65,14 +125,14 @@ public class PotentialMove
 
     /**
      * Utility function for building our moves minimax tree.
-     * @param coordinates: which moves it could make from here
      */
-    public void updateChildren(ArrayList<Coordinate> coordinates)
+    public void updateChildren()
     {
+        ArrayList<Coordinate> coordinates=main.whereicanplay(potentialBoard, colorOfPlayerWhoMadeMove, main.dimensions, main.State.RegularGame);
         for (Coordinate c : coordinates)
         {
             children.add(new PotentialMove(c, getOtherPlayer(), main.oppositecolor(colorOfPlayerWhoMadeMove),
-                    updateChildBoard(), playingState, depthLevel + 1));
+                    updateChildBoard(c), playingState, depthLevel + 1));
         }
     }
 
@@ -83,15 +143,33 @@ public class PotentialMove
      *  EVEN THOUGH IT HASN'T!
      * @return the updated child board.
      */
-    private main.Tile[][] updateChildBoard()
-    {
-        main.Tile[][] newBoard = potentialBoard.clone();
-        // double check: should we use current player or OPPOSITE player?
-        if (main.canplacepiece(newBoard, location.x, location.y, colorOfPlayerWhoMadeMove,
-                main.dimensions, playingState, true))
-        {
 
+    private main.Tile[][] updateboard()
+    {
+        main.Tile[][]myboard=new main.Tile[main.dimensions][main.dimensions];
+        for(int i=0; i<main.dimensions; i++)
+        {
+            for(int j=0; j<main.dimensions; j++)
+            {
+                myboard[i][j]=this.potentialBoard[i][j];
+            }
         }
+        return myboard;
+    }
+
+    public void setNumPiecesPotentiallyGainedOrLost(int numPiecesPotentiallyGainedOrLost) {
+        this.numPiecesPotentiallyGainedOrLost = numPiecesPotentiallyGainedOrLost;
+    }
+
+    private main.Tile[][] updateChildBoard(Coordinate c)
+    {
+        main.Tile[][] newBoard = updateboard();
+        main.printboard(newBoard, main.dimensions);
+        // double check: should we use current player or OPPOSITE player?
+     main.canplacepiece(newBoard, c.x, c.y, colorOfPlayerWhoMadeMove,
+                main.dimensions, playingState, true);
+     this.setNumPiecesPotentiallyGainedOrLost(main.numberofpeicesplayed);
+
         return newBoard;
     }
 
@@ -108,5 +186,24 @@ public class PotentialMove
             default:
                 return main.Turn.AI;
         }
+    }
+
+    public void print()
+    {
+        System.out.println(toString());
+    }
+
+    @Override
+    public String toString()
+    {
+        // color, player who is making the turn (so min if player), numPiecesGained,
+        StringBuilder sol = new StringBuilder();
+        sol.append("PRINTING OUT POTENTIAL MOVE NODE:\n");
+        sol.append("Color: " + colorOfPlayerWhoMadeMove + "\n");
+        sol.append("Player Making Move: " + whoMadeMove + "\n");
+        sol.append("Number of Potential Pieces This Move Could Gain or Lose: " + numPiecesPotentiallyGainedOrLost + "\n");
+        sol.append("Coordinates are: "+location.toString());
+        sol.append("The depth limit I am at is "+depthLevel);
+        return sol.toString();
     }
 }
