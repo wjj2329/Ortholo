@@ -474,6 +474,7 @@ public class main
     public static void main(String[] args) throws IOException
     {
         computerPlayer = new AI();
+        RandomAI randomPlayer = new RandomAI();
         depthLimit=Integer.parseInt(args[2]);
         dimensions = Integer.parseInt(args[0]);
         Tile board[][] = new Tile[dimensions][dimensions];
@@ -532,8 +533,20 @@ public class main
                     continue;
                 }
                 Scanner myscan = new Scanner(System.in);
-                int number = myscan.nextInt();
-                int number2 = myscan.nextInt();
+                boolean playRandomly = true;
+                int number;
+                int number2;
+                if (playRandomly)
+                {
+                    Coordinate c = randomPlayer.makeRandomMove(7);
+                    number = c.x;
+                    number2 = c.y;
+                }
+                else
+                {
+                    number = myscan.nextInt();
+                    number2 = myscan.nextInt();
+                }
                 if (current_state == State.Startup) {
                     if (number <= dimensions / 2 && number2 <= dimensions / 2 && number >= ((dimensions / 2) - 1) && number >= ((dimensions / 2) - 1)) {
                        if(canplacepiece(board, number, number2, personplayercolor, dimensions, current_state, true)) {
