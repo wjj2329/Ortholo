@@ -35,7 +35,7 @@ public class main
 
     public enum Turn
     {
-        Player, AI
+        Player, AI, Player2, AI2
     }
 
 
@@ -53,8 +53,11 @@ public class main
         computerPlayer.createTree(depthLimit);
         //computerPlayer.printTree(depthLimit);
 
-        System.exit(0);
-        return computerPlayer.calculateOptimalMove(depthLimit).getLocation(); //returns best move found after all the calucations
+
+        PotentialMove hi= computerPlayer.calculateOptimalMove(depthLimit); //returns best move found after all the calucations
+
+        System.out.println("THE AI CHOOSES THIS LOCATION "+hi.getLocation().toString());
+        return hi.getLocation();
     }
 
     private static void winner(Tile board[][], int dimension)
@@ -79,15 +82,21 @@ public class main
         if (black>white)
         {
             System.out.println("BLACK WINS!");
+            System.out.println("Black has "+black+" number of stones");
+            System.out.println("White has "+white+" number of stones");
 
         }
         else if (white>black) // added the else
         {
             System.out.println("WHITE WINS!");
+            System.out.println("Black has "+black+" number of stones");
+            System.out.println("White has "+white+" number of stones");
         }
         else
         {
             System.out.println("A TIE!");
+            System.out.println("Black has "+black+" number of stones");
+            System.out.println("White has "+white+" number of stones");
         }
     }
 
@@ -107,10 +116,12 @@ public class main
              }
           }
       }
+
       for (Coordinate c: mylocations)
       {
           System.out.println(c.toString());
       }
+
       return mylocations;
    }
     private static Turn whogoes(int whogoesfirst) {
@@ -477,7 +488,7 @@ public class main
         boolean endgame1=false;
         boolean endgame2=false;
         int numberIneed = dimensions * dimensions;
-        Tile temp;
+        Tile temp;//can't remember what this was for.
         if(current_turn==Turn.AI)
         {
             temp=Tile.Black;
@@ -487,14 +498,32 @@ public class main
         {
             temp=Tile.White;
         }
+        Tile personplayercolor;
+        Tile computerplayercolor;
+        if(args[3].equals("white"))
+        {
+            personplayercolor=Tile.White;
+            computerplayercolor=Tile.Black;
+        }
+        else
+        {
+            personplayercolor=Tile.Black;
+            computerplayercolor=Tile.White;
+        }
+
 
 
         while (numberofpiecesplayed < numberIneed) {
 
+            if(endgame1&&endgame2)
+            {
+                System.out.println("THIS IS A STALE MATE");
+                break;
+            }
             if (current_turn == Turn.Player) {
 
-                System.out.println("Player 1 what will you place? "+" White");
-                whereicanplay(board, Tile.White, dimensions, current_state);
+                System.out.println("Player 1 what will you place? "+ personplayercolor);//was white
+                whereicanplay(board, personplayercolor, dimensions, current_state);
                 if(mylocations.size()==0)
                 {
                     System.out.println("YOU CAN'T play any pieces ");
@@ -507,8 +536,8 @@ public class main
                 int number2 = myscan.nextInt();
                 if (current_state == State.Startup) {
                     if (number <= dimensions / 2 && number2 <= dimensions / 2 && number >= ((dimensions / 2) - 1) && number >= ((dimensions / 2) - 1)) {
-                       if(canplacepiece(board, number, number2, Tile.White, dimensions, current_state, true)) {
-                           board[number][number2] = Tile.White;
+                       if(canplacepiece(board, number, number2, personplayercolor, dimensions, current_state, true)) {
+                           board[number][number2] = personplayercolor;
                            current_turn = Turn.AI;
                            numberofpiecesplayed++;
                            endgame1=false;
@@ -526,8 +555,8 @@ public class main
 
                 if(current_state==State.RegularGame)
                 {
-                    if(canplacepiece(board, number, number2, Tile.White, dimensions, current_state, true)&&number<dimensions&&number>=0&&number2<dimensions&&number2>=0) {
-                        board[number][number2] = Tile.White;
+                    if(canplacepiece(board, number, number2, personplayercolor, dimensions, current_state, true)&&number<dimensions&&number>=0&&number2<dimensions&&number2>=0) {
+                        board[number][number2] = personplayercolor;
                         current_turn = Turn.AI;
                         numberofpiecesplayed++;
                     }
@@ -537,9 +566,10 @@ public class main
                     }
                 }
 
-            } else {
-                System.out.println("AI what will you place? "+"black");
-                whereicanplay(board, Tile.Black, dimensions, current_state);
+            } else
+                {
+                System.out.println("AI what will you place? "+computerplayercolor);//was black
+                whereicanplay(board, computerplayercolor, dimensions, current_state);
                 if(mylocations.size()==0)
                 {
                     System.out.println("AI CAN'T play any pieces ");
@@ -547,14 +577,14 @@ public class main
                     endgame2=true;
                     continue;
                 }
-                root = new PotentialMove(new Coordinate(-1, -1),current_turn,temp,board,State.RegularGame, 1);
+                root = new PotentialMove(new Coordinate(-1, -1),current_turn,computerplayercolor,board,State.RegularGame, 1, null);
                 Coordinate c=ai_taketurn(current_state);
                 int number = c.x;
                 int number2 = c.y;
                 if (current_state == State.Startup) {
                     if (number <= dimensions / 2 && number2 <= dimensions / 2 && number >= ((dimensions / 2) - 1) && number >= ((dimensions / 2) - 1)) {
-                        if(canplacepiece(board, number, number2, Tile.Black, dimensions, current_state, true)) {
-                            board[number][number2] = Tile.Black;
+                        if(canplacepiece(board, number, number2, computerplayercolor, dimensions, current_state, true)) {
+                            board[number][number2] = computerplayercolor;
                             current_turn = Turn.Player;
                             numberofpiecesplayed++;
                             endgame1=false;
@@ -575,8 +605,8 @@ public class main
                 }
                 if(current_state==State.RegularGame)
                 {
-                    if(canplacepiece(board, number, number2, Tile.Black, dimensions, current_state, true)&&number<dimensions&&number>=0&&number2<dimensions&&number2>=0) {
-                        board[number][number2] = Tile.Black;
+                    if(canplacepiece(board, number, number2, computerplayercolor, dimensions, current_state, true)&&number<dimensions&&number>=0&&number2<dimensions&&number2>=0) {
+                        board[number][number2] = computerplayercolor;
                         current_turn = Turn.Player;
                         numberofpiecesplayed++;
                     }
@@ -592,16 +622,11 @@ public class main
             {
                 current_state=State.RegularGame;
             }
-            if(endgame1&&endgame2)
-            {
-                System.out.println("THIS IS A STALE MATE");
-                break;
-            }
+
 
             printboard(board, dimensions);
 
         }
-
         winner(board, dimensions);
     }
 }

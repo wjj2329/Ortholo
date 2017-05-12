@@ -14,6 +14,11 @@ public class PotentialMove
 
 
 
+    public boolean isvisited=false;
+    public boolean falseintialvalue=true;
+
+    public PotentialMove parent;
+
     public ArrayList<PotentialMove> getChildren() {
         return children;
     }
@@ -102,7 +107,7 @@ public class PotentialMove
      */
     private int depthLevel = 0;
 
-    private int numPiecesPotentiallyGainedOrLost = 0;
+    public int numPiecesPotentiallyGainedOrLost = 0;
 
     /**
      * Constructor for PotentialMove.
@@ -112,7 +117,7 @@ public class PotentialMove
      * @param colorOfPlayerWhoMadeMove: see description
      */
     public PotentialMove(Coordinate location, main.Turn whoMadeMove, main.Tile colorOfPlayerWhoMadeMove,
-                         main.Tile[][] potentialBoard, main.State playingState, int depthLevel)
+                         main.Tile[][] potentialBoard, main.State playingState, int depthLevel, PotentialMove parent)
     {
         children = new ArrayList<>();
         this.location = location;
@@ -121,6 +126,7 @@ public class PotentialMove
         this.potentialBoard = potentialBoard;
         this.playingState = playingState;
         this.depthLevel = depthLevel;
+        this.parent=parent;
     }
 
     /**
@@ -132,8 +138,11 @@ public class PotentialMove
         for (Coordinate c : coordinates)
         {
             PotentialMove l=new PotentialMove(c, getOtherPlayer(), main.oppositecolor(colorOfPlayerWhoMadeMove),
-                    updateChildBoard(c), playingState, depthLevel + 1);
-            System.out.println(l.toString());
+                    updateChildBoard(c), playingState, depthLevel + 1, this);
+
+
+            l.setNumPiecesPotentiallyGainedOrLost(main.numberofpeicesplayed);
+            //System.out.println(l.toString());
             children.add(l);
         }
     }
@@ -166,16 +175,16 @@ public class PotentialMove
     private main.Tile[][] updateChildBoard(Coordinate c)
     {
         //System.out.println("Before");
-        main.printboard(potentialBoard, main.dimensions);
+       // main.printboard(potentialBoard, main.dimensions);
         main.Tile[][] newBoard = updateboard();
-        newBoard[c.x][c.y]=this.getColorOfPlayerWhoMadeMove();
         //System.out.println("After");
         //System.out.println("With coordinates "+this.location.toString());
         //main.printboard(newBoard, main.dimensions);
         // double check: should we use current player or OPPOSITE player?
      main.canplacepiece(newBoard, c.x, c.y, colorOfPlayerWhoMadeMove,
                 main.dimensions, playingState, true);
-     this.setNumPiecesPotentiallyGainedOrLost(main.numberofpeicesplayed);
+        newBoard[c.x][c.y]=this.getColorOfPlayerWhoMadeMove();
+
 
         return newBoard;
     }
@@ -200,18 +209,26 @@ public class PotentialMove
         System.out.println(toString());
     }
 
+
+
+
+    /**
+     * This does a BFS to print out
+     */
     @Override
     public String toString()
     {
         // color, player who is making the turn (so min if player), numPiecesGained,
         StringBuilder sol = new StringBuilder();
+        sol.append("THIS IS THE PRINT BOARD FOR BELOW");
+        main.printboard(potentialBoard, main.dimensions);
         sol.append("PRINTING OUT POTENTIAL MOVE NODE:\n");
         sol.append("Color: " + colorOfPlayerWhoMadeMove + "\n");
         sol.append("Player Making Move: " + whoMadeMove + "\n");
         sol.append("Number of Potential Pieces This Move Could Gain or Lose: " + numPiecesPotentiallyGainedOrLost + "\n");
         sol.append("Coordinates are: "+location.toString()+"\n");
         sol.append("The depth limit I am at is "+depthLevel+'\n');
-        main.printboard(potentialBoard, main.dimensions);
         return sol.toString();
+
     }
 }
